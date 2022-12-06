@@ -9,6 +9,11 @@ readme = "README.md"
 python = "^3.11"
 django = "^4.1.4"
 django-extensions = "^3.2.1"
+isort = "^5.10.1"
+black = "^22.10.0"
+mypy = "^0.991"
+django-stubs = "^1.13.0"
+django-stubs-ext = "^0.7.0"
 
 
 [build-system]
@@ -37,7 +42,7 @@ module = "manage"
 ignore_errors = true
 
 [tool.django-stubs]
-django_settings_module = "nolzapan.settings"
+django_settings_module = "config.settings"
 
 [tool.isort]
 py_version = 311

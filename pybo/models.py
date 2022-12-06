@@ -6,7 +6,7 @@ class Question(models.Model):
     content = models.TextField()
     create_date = models.DateTimeField()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.subject
 
 
