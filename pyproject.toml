@@ -1,0 +1,55 @@
+[tool.poetry]
+name = "pybo"
+version = "0.1.0"
+description = ""
+authors = ["shiny <aka.shiny.dev@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+django = "^4.1.4"
+django-extensions = "^3.2.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+target-version = ['py311']
+preview = true
+
+[tool.mypy]
+plugins = ["mypy_django_plugin.main"]
+python_version = 3.11
+strict = true
+
+[[tool.mypy.overrides]]
+module = "*.migrations.*"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "manage"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "manage"
+ignore_errors = true
+
+[tool.django-stubs]
+django_settings_module = "nolzapan.settings"
+
+[tool.isort]
+py_version = 311
+profile = "black"
+force_single_line = true
+combine_as_imports = true
+lines_between_types = 1
+lines_after_imports = 2
+src_paths = ["src", "tests"]
+extend_skip = ["setup.py"]
+known_third_party = ["poetry.core"]
+
+[flake8]
+max-line-length = 88
+extend-ignore = 'E203'
