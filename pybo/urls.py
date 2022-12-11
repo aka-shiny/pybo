@@ -1,7 +1,8 @@
 from django.urls import path
 
-from . import views
+from .views import QuestionListModelView, QuestionUpdateModelView
 
 urlpatterns = [
-    path("", views.index),
+    path("", QuestionListModelView.as_view()),
+    path("<int:pk>/edit", QuestionUpdateModelView.as_view(), name="question_edit")
 ]
