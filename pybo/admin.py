@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import Question
 
 
-class QuestionAdmin(admin.ModelAdmin):
+class QuestionAdmin(admin.ModelAdmin[Question]):
     search_fields = ['subject']
 
 
