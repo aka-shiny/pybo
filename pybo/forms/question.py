@@ -6,4 +6,4 @@ from pybo.models import Question
 class QuestionForm(forms.ModelForm[Question]):
     class Meta:
         model = Question
-        fields = '__all__'
+        fields = "__all__"
