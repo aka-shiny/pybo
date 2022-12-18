@@ -1,8 +1,10 @@
 from typing import Any
 
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views import generic
 
@@ -35,26 +37,46 @@ class QuestionDetailView(generic.DetailView[Question]):
         return question
 
 
-class QuestionCreate(generic.CreateView[Question, QuestionForm]):
+class QuestionCreate(LoginRequiredMixin, generic.CreateView[Question, QuestionForm]):
     form_class = QuestionForm
     template_name = "question/question_form.html"
-    success_url = "/pybo/"
+    login_url = reverse_lazy("common:login")
+
+    def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            question = form.save(commit=False)
+            question.create_date = timezone.now()
+            question.author = request.user
+            question.save()
+            return redirect("pybo:index")
+        else:
+            context = {"form": form}
+            return render(request, self.template_name, context)
 
 
-class AnswerCreateView(generic.CreateView[Answer, AnswerForm]):
+class AnswerCreateView(LoginRequiredMixin, generic.CreateView[Answer, AnswerForm]):
     model = Answer
     form_class = AnswerForm
     template_name = "question/question_detail.html"
     success_url = "/pybo/"
+    login_url = reverse_lazy("common:login")
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        question = get_object_or_404(Question, pk=self.kwargs.get("question_id"))
+        form = self.form_class()
+        context = {"question": question, "form": form}
+        return render(request, self.template_name, context)
 
     def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         question = get_object_or_404(Question, pk=self.kwargs.get("question_id"))
         form = self.form_class(request.POST)
-        context = {"question": question, "form": form}
         if form.is_valid():
             answer = form.save(commit=False)
             answer.question = question
+            answer.author = request.user
             answer.save()
             return redirect("pybo:question_detail", question.id)
         else:
+            context = {"question": question, "form": form}
             return render(request, self.template_name, context)

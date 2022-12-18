@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import List
 
 import django_stubs_ext
+from django.urls import reverse_lazy
 
 from config.local_settings import PYBO_SECRET_KEY
 
