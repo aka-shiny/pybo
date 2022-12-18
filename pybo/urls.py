@@ -1,10 +1,7 @@
 from django.urls import path
 
 from pybo.views import (
-    AnswerCreateView,
-    QuestionCreate,
-    QuestionDetailView,
-    QuestionListView,
+    AnswerCreateView, QuestionCreate, QuestionDetailView, QuestionListView,
 )
 
 app_name = "pybo"

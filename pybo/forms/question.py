@@ -6,4 +6,8 @@ from pybo.models import Question
 class QuestionForm(forms.ModelForm[Question]):
     class Meta:
         model = Question
-        fields = "__all__"
+        fields = ["subject", "content"]
+        labels = {
+            "subject": "제목",
+            "content": "내용",
+        }

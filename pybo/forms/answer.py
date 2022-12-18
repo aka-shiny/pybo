@@ -3,7 +3,10 @@ from django import forms
 from pybo.models import Answer
 
 
-class AnswerForm(forms.ModelForm):
+class AnswerForm(forms.ModelForm[Answer]):
     class Meta:
         model = Answer
-        fields = "__all__"
+        fields = ["content"]
+        labels = {
+            "content": "답변내용",
+        }

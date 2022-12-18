@@ -1,7 +1,8 @@
 from typing import Any
 
 from django.db.models import QuerySet
-from django.shortcuts import get_object_or_404, redirect
+from django.http import HttpRequest, HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views import generic
 
@@ -13,6 +14,7 @@ from pybo.models import Answer, Question
 class QuestionListView(generic.ListView[Question]):
     model = Question
     template_name = "question/question_list.html"
+    paginate_by = 15
 
     def get_queryset(self) -> QuerySet[Question]:
         qs = super().get_queryset().order_by("-create_date")
@@ -27,30 +29,32 @@ class QuestionDetailView(generic.DetailView[Question]):
     model = Question
     context_object_name = "question"
     template_name = "question/question_detail.html"
-    success_url = "/pybo/"
 
-    def get_object(self) -> object:
+    def get_object(self, queryset: QuerySet[Question, Question] = None) -> object:
         question = get_object_or_404(Question, pk=self.kwargs.get("pk"))
         return question
 
 
-class QuestionCreate(generic.CreateView[Question]):
+class QuestionCreate(generic.CreateView[Question, QuestionForm]):
     form_class = QuestionForm
     template_name = "question/question_form.html"
+    success_url = "/pybo/"
 
 
-class AnswerCreateView(generic.CreateView[Answer]):
+class AnswerCreateView(generic.CreateView[Answer, AnswerForm]):
     model = Answer
     form_class = AnswerForm
     template_name = "question/question_detail.html"
     success_url = "/pybo/"
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         question = get_object_or_404(Question, pk=self.kwargs.get("question_id"))
-        answer = Answer(
-            question=question,
-            content=request.POST.get("content"),
-            create_date=timezone.now(),
-        )
-        answer.save()
-        return redirect("pybo:question_detail", question.id)
+        form = self.form_class(request.POST)
+        context = {"question": question, "form": form}
+        if form.is_valid():
+            answer = form.save(commit=False)
+            answer.question = question
+            answer.save()
+            return redirect("pybo:question_detail", question.id)
+        else:
+            return render(request, self.template_name, context)
