@@ -2,9 +2,9 @@ from django.urls import path
 
 from pybo.views import (
     AnswerCreateView,
-    QuestionCreate,
+    QuestionCreateView,
     QuestionDetailView,
-    QuestionListView,
+    QuestionListView, QuestionUpdateView, QuestionDeleteView
 )
 
 app_name = "pybo"
@@ -17,5 +17,7 @@ urlpatterns = [
         AnswerCreateView.as_view(),
         name="answer_create",
     ),
-    path("question/create/", QuestionCreate.as_view(), name="question_create"),
+    path("question/create/", QuestionCreateView.as_view(), name="question_create"),
+    path("question/modify/<int:question_id>/", QuestionUpdateView.as_view(), name="question_modify"),
+    path("question/delete/<int:question_id>", QuestionDeleteView.as_view(), name="question_delete"),
 ]

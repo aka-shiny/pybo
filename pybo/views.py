@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views import generic
+from django.views.generic.edit import DeletionMixin
 
 from pybo.forms.answer import AnswerForm
 from pybo.forms.question import QuestionForm
@@ -37,7 +38,7 @@ class QuestionDetailView(generic.DetailView[Question]):
         return question
 
 
-class QuestionCreate(LoginRequiredMixin, generic.CreateView[Question, QuestionForm]):
+class QuestionCreateView(LoginRequiredMixin, generic.CreateView[Question, QuestionForm]):
     form_class = QuestionForm
     template_name = "question/question_form.html"
     login_url = reverse_lazy("common:login")
@@ -53,6 +54,40 @@ class QuestionCreate(LoginRequiredMixin, generic.CreateView[Question, QuestionFo
         else:
             context = {"form": form}
             return render(request, self.template_name, context)
+
+
+class QuestionUpdateView(LoginRequiredMixin, generic.UpdateView[Question, QuestionForm]):
+    model = Question
+    form_class = QuestionForm
+    template_name = "question/question_form.html"
+    success_url = reverse_lazy("pybo:index")
+
+    def get(self, request, *args, **kwargs):
+        instance = get_object_or_404(Question, pk=kwargs.get("question_id"))
+        form = self.form_class(instance=instance)
+        context = {"form": form}
+        return render(request, self.template_name, context)
+
+    def post(self, request, *args, **kwargs):
+        instance = get_object_or_404(Question, pk=kwargs.get("question_id"))
+        form = self.form_class(request.POST, instance=instance)
+        if form.is_valid():
+            question = form.save(commit=False)
+            question.modify_date = timezone.now()
+            question.save()
+            return redirect('pybo:question_detail', question.id)
+        else:
+            context = {'form': form}
+            return render(request, self.template_name, context)
+
+
+class QuestionDeleteView(LoginRequiredMixin, generic.DeleteView):
+    model = Question
+    form_class = QuestionForm
+    success_url = reverse_lazy('pybo:index')
+
+    def post(self, request, *args, **kwargs):
+        return self.delete(kwargs.get('question_id'))
 
 
 class AnswerCreateView(LoginRequiredMixin, generic.CreateView[Answer, AnswerForm]):
